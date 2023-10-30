@@ -1,9 +1,9 @@
-defmodule Stockbq.MixProject do
+defmodule Exoptions.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :stockbq,
+      app: :exoptions,
       version: "0.1.0",
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
@@ -15,7 +15,7 @@ defmodule Stockbq.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {Stockbq, []}
+      mod: {Exoptions, []}
     ]
   end
 

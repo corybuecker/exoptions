@@ -1,16 +1,16 @@
-defmodule Stockbq.Fetchers.All do
+defmodule Exoptions.Fetchers.Polygon.Chains do
   use GenServer
   require Logger
 
   def start_link(symbol \\ []) do
-    GenServer.start_link(Stockbq.Fetchers.All, symbol, name: Stockbq.Fetchers.All)
+    GenServer.start_link(Exoptions.Fetchers.Polygon.Chains, symbol, name: :polygon_chains)
   end
 
   @impl true
   def init(symbol) do
     {:ok,
      if symbol == [] do
-       Application.get_env(:stockbq, :symbols)
+       Application.get_env(:exoptions, :symbols)
      else
        symbol
      end}

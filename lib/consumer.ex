@@ -7,14 +7,15 @@ defmodule Stockbq.Consumer do
   end
 
   def init(:ok) do
-    {:consumer, :the_state_does_not_matter, subscribe_to: [{A, max_demand: 100}]}
+    {:consumer, :the_state_does_not_matter, subscribe_to: [{A, max_demand: 50}]}
   end
 
   def handle_events(events, _from, state) do
     events
     |> Enum.each(fn row ->
       case row do
-        %{"day" => %{"last_updated" => timestamp}, "details" => %{"ticker" => ticker}} ->
+         %{"day" => %{"last_updated" => timestamp}, "details" => %{"ticker" => ticker}} ->
+        #%{"ticker" => ticker, "t" => timestamp} ->
           Postgrex.query!(
             :database,
             "INSERT INTO chains VALUES ($1, $2, $3) ON CONFLICT DO NOTHING",
