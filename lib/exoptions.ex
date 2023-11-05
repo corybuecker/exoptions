@@ -1,13 +1,16 @@
 defmodule Exoptions do
   use Application
+  alias Exoptions.Fetchers.Tradier.Quotes
+  alias Exoptions.Fetchers.Tradier.Symbols
 
   def start(_type, _options) do
     fetchers = [
-      Exoptions.Fetchers.Tradier.Symbols.child_spec(Application.get_env(:exoptions, :symbols))
+      Symbols.child_spec(Application.get_env(:exoptions, :symbols)),
+      Quotes.child_spec([])
     ]
 
     children = [
-      {Postgrex, name: :database, database: "options"},
+      {Postgrex, name: :database, database: "exoptions"},
       {Finch, name: :http}
     ]
 
