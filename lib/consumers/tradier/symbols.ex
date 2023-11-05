@@ -12,7 +12,6 @@ defmodule Exoptions.Consumers.Tradier.Symbols do
   end
 
   def handle_events(events, _from, state) do
-    timestamp = DateTime.utc_now()
     [ok: %{"symbols" => symbols}] = events
 
     symbols
@@ -21,9 +20,8 @@ defmodule Exoptions.Consumers.Tradier.Symbols do
       |> Enum.each(fn row ->
         Postgrex.query!(
           :database,
-          "INSERT INTO tradier_options VALUES ($1, $2) ON CONFLICT (symbol) DO UPDATE SET fetched_at = $1",
+          "INSERT INTO tradier_symbols VALUES ($1) ON CONFLICT (symbol) DO UPDATE SET fetched_at = now()",
           [
-            timestamp,
             row
           ]
         )

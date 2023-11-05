@@ -11,6 +11,11 @@ defmodule Mix.Tasks.Start do
 
     GenStage.sync_subscribe(consumer, to: producer)
 
+    {:ok, producer} = GenStage.start_link(Exoptions.Producers.Tradier.Quotes, [])
+    {:ok, consumer} = GenStage.start_link(Exoptions.Consumers.Tradier.Quotes, [])
+
+    GenStage.sync_subscribe(consumer, to: producer)
+
     Process.sleep(:infinity)
   end
 end
