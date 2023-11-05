@@ -1,9 +1,9 @@
-defmodule Stockbq.Fetchers.Polygon do
+defmodule Exoptions.Fetchers.Polygon.Chain do
   require Logger
   use GenServer
 
   def start_link([symbol]) do
-    GenServer.start_link(Stockbq.Fetchers.Polygon, symbol, name: symbol)
+    GenServer.start_link(Exoptions.Fetchers.Polygon.Chain, symbol, name: symbol)
   end
 
   @impl true
@@ -52,8 +52,8 @@ defmodule Stockbq.Fetchers.Polygon do
   defp request(url) do
     Logger.info("fetching #{url} at #{DateTime.utc_now() |> DateTime.to_string()}")
 
-    Finch.build(:get, url, [{"Authorization", "Bearer #{Application.get_env(:stockbq, :key)}"}])
-    |> Finch.request(MyFinch)
+    Finch.build(:get, url, [{"Authorization", "Bearer #{Application.get_env(:exoptions, :key)}"}])
+    |> Finch.request(:http)
     |> parse_response()
   end
 

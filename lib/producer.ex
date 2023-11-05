@@ -30,7 +30,8 @@ defmodule Stockbq.Producer do
 
   def handle_cast(:fetch, existing_demand) do
     Logger.debug("fetch has #{existing_demand} demand")
-    events = GenServer.call(Stockbq.Fetchers.All, :records)
+    events = GenServer.call(Stockbq.Fetchers.Polygon.Chains, :records)
+    # events = GenServer.call(:aggregates, :records)
 
     case events do
       :finished ->
