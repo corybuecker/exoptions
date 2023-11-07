@@ -2,7 +2,11 @@ defmodule Exoptions.Consumers.Tradier.Quotes do
   use GenStage
   require Logger
 
-  def init(_) do
+  def start_link(_) do
+    GenStage.start_link(__MODULE__, :ok, name: :tradier_quotes_consumer)
+  end
+
+  def init(:ok) do
     {:consumer, %{}}
   end
 
@@ -14,18 +18,19 @@ defmodule Exoptions.Consumers.Tradier.Quotes do
   def handle_events(events, _from, state) do
     case events do
       [[]] ->
+        System.stop(0)
         {:noreply, [], state}
 
       [ok: %{"quotes" => %{"quote" => quotes}}] ->
         quotes
-        |> Enum.each(fn %{"symbol" => symbol} = row ->
+        |> Enum.each(fn %{"symbol" => symbol, "trade_date" => trade_date} = row ->
           Postgrex.query!(
             :database,
             "INSERT INTO tradier_quotes VALUES ($1, $2, $3) ON CONFLICT DO NOTHING",
             [
+              trade_date,
               symbol,
-              row,
-              DateTime.utc_now()
+              row
             ]
           )
         end)
@@ -42,6 +47,6 @@ defmodule Exoptions.Consumers.Tradier.Quotes do
   defp ask_producer(from) do
     GenStage.ask(from, 1)
 
-    Process.send_after(self(), :ask, 5000)
+    Process.send_after(self(), :ask, 2500)
   end
 end

@@ -3,7 +3,11 @@ defmodule Exoptions.Fetchers.Tradier.Symbols do
   require Logger
 
   def start_link(symbols) do
-    GenServer.start_link(Exoptions.Fetchers.Tradier.Symbols, symbols, name: :tradier_symbols)
+    GenServer.start_link(
+      Exoptions.Fetchers.Tradier.Symbols,
+      symbols,
+      name: :tradier_symbols
+    )
   end
 
   @impl true
@@ -22,15 +26,14 @@ defmodule Exoptions.Fetchers.Tradier.Symbols do
   end
 
   defp url(underlying) do
-    "https://sandbox.tradier.com/v1/markets/options/lookup?underlying=#{underlying}"
+    "https://api.tradier.com/v1/markets/options/lookup?underlying=#{underlying}"
   end
 
   defp headers do
-    [key: key] = Application.get_env(:exoptions, :tradier)
-
     [
       {"Accept", "application/json"},
-      {"Authorization", "Bearer #{key}"}
+      {"Authorization",
+       "Bearer #{Application.get_env(:exoptions, :tradier) |> Keyword.get(:key)}"}
     ]
   end
 
