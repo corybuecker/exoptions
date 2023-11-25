@@ -2,6 +2,10 @@ defmodule Exoptions.Consumers.Tradier.Symbols do
   use GenStage
   require Logger
 
+  def start_link(_) do
+    GenStage.start_link(Exoptions.Consumers.Tradier.Symbols, [], name: :tradier_symbols_consumer)
+  end
+
   def init(_) do
     {:consumer, %{}}
   end
@@ -39,6 +43,6 @@ defmodule Exoptions.Consumers.Tradier.Symbols do
   defp ask_producer(from) do
     GenStage.ask(from, 1)
 
-    Process.send_after(self(), :ask, 60000)
+    Process.send_after(self(), :ask, 2500)
   end
 end

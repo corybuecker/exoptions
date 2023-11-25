@@ -10,8 +10,18 @@ defmodule Exoptions do
     ]
 
     children = [
-      {Postgrex, name: :database, database: "exoptions"},
-      {Finch, name: :http}
+      {Postgrex,
+       name: :database,
+       database: "exoptions",
+       hostname: Application.get_env(:exoptions, :host),
+       username: "exoptions",
+       password: "exoptions"},
+      {Finch, name: :http},
+      Exoptions.Producers.Tradier.Symbols,
+      Exoptions.Producers.Tradier.Quotes,
+      Exoptions.Consumers.Tradier.Symbols,
+      Exoptions.Consumers.Tradier.Quotes,
+      Exoptions.Fetchers.Tradier.Positions
     ]
 
     Supervisor.start_link(fetchers ++ children, strategy: :rest_for_one)

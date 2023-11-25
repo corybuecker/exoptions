@@ -6,16 +6,18 @@ defmodule Mix.Tasks.Start do
   def run(_) do
     Application.ensure_all_started(:exoptions)
 
-    {:ok, producer} = GenStage.start_link(Exoptions.Producers.Tradier.Symbols, [])
-    {:ok, consumer} = GenStage.start_link(Exoptions.Consumers.Tradier.Symbols, [])
+    GenStage.sync_subscribe(:tradier_symbols_consumer, to: :tradier_symbols_producer)
+    GenStage.sync_subscribe(:tradier_quotes_consumer, to: :tradier_quotes_producer)
 
-    GenStage.sync_subscribe(consumer, to: producer)
+    positions = GenServer.call(:tradier_positions, :records)
+    Postgrex.query!(:database, "TRUNCATE TABLE tradier_positions", [])
 
-    {:ok, producer} = GenStage.start_link(Exoptions.Producers.Tradier.Quotes, [])
-    {:ok, consumer} = GenStage.start_link(Exoptions.Consumers.Tradier.Quotes, [])
-
-    GenStage.sync_subscribe(consumer, to: producer)
-
-    Process.sleep(:infinity)
+    positions
+    |> Enum.each(fn %{"cost_basis" => cost_basis, "symbol" => symbol} ->
+      Postgrex.query!(:database, "INSERT INTO tradier_positions VALUES ($1, $2)", [
+        symbol,
+        cost_basis
+      ])
+    end)
   end
 end

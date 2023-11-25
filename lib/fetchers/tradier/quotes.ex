@@ -15,7 +15,7 @@ defmodule Exoptions.Fetchers.Tradier.Quotes do
   def handle_call(:records, _from, offset) do
     case get_symbols(offset) do
       {:ok, %Postgrex.Result{num_rows: 0}} ->
-        {:reply, [], 0}
+        {:reply, [], offset}
 
       {:ok, %Postgrex.Result{rows: rows}} ->
         Logger.info("fetching #{rows |> inspect()}")
@@ -42,16 +42,15 @@ defmodule Exoptions.Fetchers.Tradier.Quotes do
   end
 
   defp url() do
-    "https://sandbox.tradier.com/v1/markets/quotes"
+    "https://api.tradier.com/v1/markets/quotes"
   end
 
   defp headers do
-    [key: key] = Application.get_env(:exoptions, :tradier)
-
     [
       {"Accept", "application/json"},
       {"Content-Type", "application/x-www-form-urlencoded"},
-      {"Authorization", "Bearer #{key}"}
+      {"Authorization",
+       "Bearer #{Application.get_env(:exoptions, :tradier) |> Keyword.get(:key)}"}
     ]
   end
 
